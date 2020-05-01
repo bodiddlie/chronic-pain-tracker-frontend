@@ -8,7 +8,8 @@ import {
   addMonths,
   isSameMonth,
   format,
-  getDaysInMonth
+  getDaysInMonth,
+  parse
 } from "date-fns";
 import styled, { keyframes } from "styled-components/macro";
 
@@ -35,43 +36,61 @@ function generateDays(currentMonth) {
   return { days, rows };
 }
 
+const initialState = { days: [], rows: 5, currentMonth: null };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "update": {
+      return {
+        days: action.days,
+        rows: action.rows,
+        currentMonth: action.currentMonth
+      };
+    }
+    default: {
+      return state;
+    }
+  }
+}
+
 export function Calendar({ dayKey }) {
-  const [daysDisplay, setDays] = React.useState([]);
-  const [rowsDisplay, setRows] = React.useState(5);
-  const [currentMonth, setCurrentMonth] = React.useState(new Date());
+  const [state, dispatch] = React.useReducer(reducer, initialState);
 
   React.useEffect(
     () => {
-      const cur = startOfMonth(dayKey || new Date());
+      const currentMonth = startOfMonth(
+        parse(dayKey, "yyyy-MM-dd", new Date())
+      );
       const { days, rows } = generateDays(currentMonth);
-
-      setDays(days);
-      setRows(rows);
-      setCurrentMonth(cur);
+      dispatch({ type: "update", currentMonth, days, rows });
     },
-    [dayKey, currentMonth]
+    [dayKey]
   );
 
   return (
-    <Container>
-      <Month>
-        <span>&larr;</span>
-        <span>{format(currentMonth, "MMMM yyyy")}</span>
-        <span>&rarr;</span>
-      </Month>
-      <Grid rows={rowsDisplay}>
-        <Entry>Sun</Entry>
-        <Entry>Mon</Entry>
-        <Entry>Tue</Entry>
-        <Entry>Wed</Entry>
-        <Entry>Thu</Entry>
-        <Entry>Fri</Entry>
-        <Entry>Sat</Entry>
-        {daysDisplay.map(day => (
-          <Day key={day.key} date={day.date} show={day.show} />
-        ))}
-      </Grid>
-    </Container>
+    <React.Fragment>
+      {!!state.currentMonth && (
+        <Container>
+          <Month>
+            <span>&larr;</span>
+            <span>{format(state.currentMonth, "MMMM yyyy")}</span>
+            <span>&rarr;</span>
+          </Month>
+          <Grid rows={state.rows}>
+            <Entry>Sun</Entry>
+            <Entry>Mon</Entry>
+            <Entry>Tue</Entry>
+            <Entry>Wed</Entry>
+            <Entry>Thu</Entry>
+            <Entry>Fri</Entry>
+            <Entry>Sat</Entry>
+            {state.days.map(day => (
+              <Day key={day.key} date={day.date} show={day.show} />
+            ))}
+          </Grid>
+        </Container>
+      )}
+    </React.Fragment>
   );
 }
 
