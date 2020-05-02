@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   getDay,
   getDate,
@@ -9,9 +9,10 @@ import {
   isSameMonth,
   format,
   getDaysInMonth,
-  parse
-} from "date-fns";
-import styled, { keyframes } from "styled-components/macro";
+  parse,
+} from 'date-fns';
+import styled, { keyframes } from 'styled-components/macro';
+import { useParams } from 'react-router-dom';
 
 function generateDays(currentMonth) {
   let days = [];
@@ -27,7 +28,7 @@ function generateDays(currentMonth) {
     let day = {
       show: isSameMonth(current, currentMonth),
       date: current,
-      key: format(current, "MMddyyyy")
+      key: format(current, 'MMddyyyy'),
     };
     days.push(day);
     current = addDays(current, 1);
@@ -40,11 +41,11 @@ const initialState = { days: [], rows: 5, currentMonth: null };
 
 function reducer(state, action) {
   switch (action.type) {
-    case "update": {
+    case 'update': {
       return {
         days: action.days,
         rows: action.rows,
-        currentMonth: action.currentMonth
+        currentMonth: action.currentMonth,
       };
     }
     default: {
@@ -53,16 +54,17 @@ function reducer(state, action) {
   }
 }
 
-export function Calendar({ dayKey }) {
+export function Calendar() {
+  const { dayKey } = useParams();
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
   React.useEffect(
     () => {
       const currentMonth = startOfMonth(
-        parse(dayKey, "yyyy-MM-dd", new Date())
+        parse(dayKey, 'yyyy-MM-dd', new Date())
       );
       const { days, rows } = generateDays(currentMonth);
-      dispatch({ type: "update", currentMonth, days, rows });
+      dispatch({ type: 'update', currentMonth, days, rows });
     },
     [dayKey]
   );
@@ -73,7 +75,7 @@ export function Calendar({ dayKey }) {
         <Container>
           <Month>
             <span>&larr;</span>
-            <span>{format(state.currentMonth, "MMMM yyyy")}</span>
+            <span>{format(state.currentMonth, 'MMMM yyyy')}</span>
             <span>&rarr;</span>
           </Month>
           <Grid rows={state.rows}>
