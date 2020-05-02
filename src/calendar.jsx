@@ -11,8 +11,9 @@ import {
   getDaysInMonth,
   parse,
 } from 'date-fns';
-import styled, { keyframes } from 'styled-components/macro';
-import { useParams } from 'react-router-dom';
+import styled, { keyframes, css } from 'styled-components/macro';
+import { useParams, Link } from 'react-router-dom';
+import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 
 function generateDays(currentMonth) {
   let days = [];
@@ -37,7 +38,12 @@ function generateDays(currentMonth) {
   return { days, rows };
 }
 
-const initialState = { days: [], rows: 5, currentMonth: null };
+const initialState = {
+  days: [],
+  rows: 5,
+  currentMonth: null,
+  currentDate: null,
+};
 
 function reducer(state, action) {
   switch (action.type) {
@@ -46,6 +52,7 @@ function reducer(state, action) {
         days: action.days,
         rows: action.rows,
         currentMonth: action.currentMonth,
+        currentDate: action.currentDate,
       };
     }
     default: {
@@ -60,11 +67,10 @@ export function Calendar() {
 
   React.useEffect(
     () => {
-      const currentMonth = startOfMonth(
-        parse(dayKey, 'yyyy-MM-dd', new Date())
-      );
+      const currentDate = parse(dayKey, 'yyyy-MM-dd', new Date());
+      const currentMonth = startOfMonth(currentDate);
       const { days, rows } = generateDays(currentMonth);
-      dispatch({ type: 'update', currentMonth, days, rows });
+      dispatch({ type: 'update', currentMonth, days, rows, currentDate });
     },
     [dayKey]
   );
@@ -74,9 +80,17 @@ export function Calendar() {
       {!!state.currentMonth && (
         <Container>
           <Month>
-            <span>&larr;</span>
+            <MonthLink
+              to={`/${format(addMonths(state.currentDate, -1), 'yyyy-MM-dd')}`}
+            >
+              <FiArrowLeft />
+            </MonthLink>
             <span>{format(state.currentMonth, 'MMMM yyyy')}</span>
-            <span>&rarr;</span>
+            <MonthLink
+              to={`/${format(addMonths(state.currentDate, 1), 'yyyy-MM-dd')}`}
+            >
+              <FiArrowRight />
+            </MonthLink>
           </Month>
           <Grid rows={state.rows}>
             <Entry>Sun</Entry>
@@ -87,7 +101,12 @@ export function Calendar() {
             <Entry>Fri</Entry>
             <Entry>Sat</Entry>
             {state.days.map(day => (
-              <Day key={day.key} date={day.date} show={day.show} />
+              <Day
+                key={day.key}
+                date={day.date}
+                show={day.show}
+                selected={format(day.date, 'yyyy-MM-dd') === dayKey}
+              />
             ))}
           </Grid>
         </Container>
@@ -96,12 +115,12 @@ export function Calendar() {
   );
 }
 
-function Day({ date, show }) {
+function Day({ date, show, selected }) {
   return (
-    <div>
+    <DayLink selected={selected} to={`/${format(date, 'yyyy-MM-dd')}`}>
       <span>{getDate(date)}</span>
       <span>.</span>
-    </div>
+    </DayLink>
   );
 }
 
@@ -133,6 +152,33 @@ const Entry = styled.div`
   align-items: center;
   justify-content: center;
   font-weight: bold;
+`;
+
+const MonthLink = styled(Link)`
+  text-decoration: none;
+  color: black;
+`;
+
+const DayLink = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+  border: ${props =>
+    props.selected ? '1px solid blue' : '1px solid transparent'};
+
+  &:hover {
+    animation: ${props =>
+      props.selected
+        ? 'none'
+        : css`
+            ${blink} 1s linear infinite
+          `};
+  }
 `;
 
 const blink = keyframes`
