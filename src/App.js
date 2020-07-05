@@ -1,20 +1,21 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { format } from 'date-fns';
 
-import { Calendar } from './calendar';
+import { Header } from './header';
+import { Month } from './month';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<Navigate to={`/${format(new Date(), 'yyyy-MM-dd')}`} />}
-        />
-        <Route path="/:dayKey" element={<Calendar />} />
-      </Routes>
-    </BrowserRouter>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        height: '100vh',
+      }}
+    >
+      <Header />
+      <Month />
+    </div>
   );
 }
 
