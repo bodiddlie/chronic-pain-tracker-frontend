@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Header } from './header';
-import { Month } from './month';
+import { Calendar } from './calendar';
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
       }}
     >
       <Header />
-      <Month />
+      <Calendar />
     </div>
   );
 }

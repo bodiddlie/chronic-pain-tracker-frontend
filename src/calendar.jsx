@@ -1,19 +1,18 @@
 import React from 'react';
+import styled from 'styled-components/macro';
 import {
-  getDay,
-  getDate,
-  startOfMonth,
-  subDays,
   addDays,
-  addMonths,
-  isSameMonth,
   format,
+  getDay,
   getDaysInMonth,
-  parse,
+  isSameMonth,
+  startOfMonth,
+  startOfToday,
+  subDays,
 } from 'date-fns';
-import styled, { keyframes, css } from 'styled-components/macro';
-import { useParams, Link } from 'react-router-dom';
-import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
+
+import { MonthSwitcher } from './month-switcher';
+import { Month } from './month';
 
 function generateDays(currentMonth) {
   let days = [];
@@ -38,159 +37,53 @@ function generateDays(currentMonth) {
   return { days, rows };
 }
 
-const initialState = {
-  days: [],
-  rows: 5,
-  currentMonth: null,
-  currentDate: null,
-};
-
-function reducer(state, action) {
-  switch (action.type) {
-    case 'update': {
-      return {
-        days: action.days,
-        rows: action.rows,
-        currentMonth: action.currentMonth,
-        currentDate: action.currentDate,
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-
 export function Calendar() {
-  const { dayKey } = useParams();
-  const [state, dispatch] = React.useReducer(reducer, initialState);
+  const today = startOfToday();
+  const [currentMonth, setCurrentMonth] = React.useState(startOfMonth(today));
+  const [calendar, setCalendar] = React.useState(generateDays(currentMonth));
 
-  React.useEffect(
-    () => {
-      const currentDate = parse(dayKey, 'yyyy-MM-dd', new Date());
-      const currentMonth = startOfMonth(currentDate);
-      const { days, rows } = generateDays(currentMonth);
-      dispatch({ type: 'update', currentMonth, days, rows, currentDate });
-    },
-    [dayKey]
-  );
+  const handleMonthChange = (month) => {
+    setCurrentMonth(month);
+    setCalendar(generateDays(month));
+  };
 
   return (
-    <React.Fragment>
-      {!!state.currentMonth && (
-        <Container>
-          <Month>
-            <MonthLink
-              to={`/${format(addMonths(state.currentDate, -1), 'yyyy-MM-dd')}`}
-            >
-              <FiArrowLeft />
-            </MonthLink>
-            <span>{format(state.currentMonth, 'MMMM yyyy')}</span>
-            <MonthLink
-              to={`/${format(addMonths(state.currentDate, 1), 'yyyy-MM-dd')}`}
-            >
-              <FiArrowRight />
-            </MonthLink>
-          </Month>
-          <Grid rows={state.rows}>
-            <Entry>Sun</Entry>
-            <Entry>Mon</Entry>
-            <Entry>Tue</Entry>
-            <Entry>Wed</Entry>
-            <Entry>Thu</Entry>
-            <Entry>Fri</Entry>
-            <Entry>Sat</Entry>
-            {state.days.map(day => (
-              <Day
-                key={day.key}
-                date={day.date}
-                show={day.show}
-                selected={format(day.date, 'yyyy-MM-dd') === dayKey}
-              />
-            ))}
-          </Grid>
-        </Container>
-      )}
-    </React.Fragment>
-  );
-}
-
-function Day({ date, show, selected }) {
-  return (
-    <DayLink selected={selected} to={`/${format(date, 'yyyy-MM-dd')}`}>
-      <span>{getDate(date)}</span>
-      <span>.</span>
-    </DayLink>
+    <Container>
+      <MonthSwitcher month={currentMonth} onClick={handleMonthChange} />
+      <LabelRow>
+        <Label>S</Label>
+        <Label>M</Label>
+        <Label>T</Label>
+        <Label>W</Label>
+        <Label>Th</Label>
+        <Label>F</Label>
+        <Label>Sa</Label>
+      </LabelRow>
+      <Month calendar={calendar} />
+    </Container>
   );
 }
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-`;
-
-const Month = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const Grid = styled.div`
   flex: 1;
-  max-height: 500px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: repeat(${props => props.rows + 1}, 1fr);
-  grid-gap: 5px;
+  flex-direction: column;
 `;
 
-const Entry = styled.div`
+const LabelRow = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+`;
+
+const Label = styled.div`
+  flex: 1;
+  text-align: center;
   font-weight: bold;
 `;
 
-const MonthLink = styled(Link)`
-  text-decoration: none;
-  color: black;
-`;
-
-const DayLink = styled(Link)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;
-  color: black;
-  border: ${props =>
-    props.selected ? '1px solid blue' : '1px solid transparent'};
-
-  &:hover {
-    animation: ${props =>
-      props.selected
-        ? 'none'
-        : css`
-            ${blink} 1s linear infinite
-          `};
-  }
-`;
-
-const blink = keyframes`
-  0% {
-    border: 1px solid rgba(117, 117, 117, 0);
-  }
-
-  50% {
-    border: 1px solid rgba(117, 117, 117, 1);
-  }
-
-  100% {
-    border: 1px solid rgba(117, 117, 117, 0);
-  }
+const Tag = styled.span`
+  font-size: 0.5rem;
+  border-radius: 1.5rem;
+  background-color: blue;
+  color: white;
+  white-space: nowrap;
 `;
