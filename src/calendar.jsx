@@ -13,6 +13,7 @@ import {
 
 import { MonthSwitcher } from './month-switcher';
 import { Month } from './month';
+import { getDataForMonth } from './api';
 
 function generateDays(currentMonth) {
   let days = [];
@@ -41,6 +42,11 @@ export function Calendar() {
   const today = startOfToday();
   const [currentMonth, setCurrentMonth] = React.useState(startOfMonth(today));
   const [calendar, setCalendar] = React.useState(generateDays(currentMonth));
+  const [days, setDays] = React.useState([]);
+
+  React.useEffect(() => {
+    getDataForMonth(currentMonth).then(setDays);
+  }, [currentMonth]);
 
   const handleMonthChange = (month) => {
     setCurrentMonth(month);
@@ -59,7 +65,7 @@ export function Calendar() {
         <Label>F</Label>
         <Label>Sa</Label>
       </LabelRow>
-      <Month calendar={calendar} />
+      <Month calendar={calendar} monthData={days} />
     </Container>
   );
 }
@@ -78,12 +84,4 @@ const Label = styled.div`
   flex: 1;
   text-align: center;
   font-weight: bold;
-`;
-
-const Tag = styled.span`
-  font-size: 0.5rem;
-  border-radius: 1.5rem;
-  background-color: blue;
-  color: white;
-  white-space: nowrap;
 `;

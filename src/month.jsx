@@ -1,14 +1,18 @@
 import React from 'react';
 import styled from 'styled-components/macro';
-import { getDate } from 'date-fns';
+import { format } from 'date-fns';
 
-export function Month({ calendar }) {
+import { Day } from './day';
+
+export function Month({ calendar, monthData }) {
   const { rows, days } = calendar;
   return (
     <Grid rows={rows}>
-      {days.map((day) => (
-        <Day key={day.key}>{getDate(day.date)}</Day>
-      ))}
+      {days.map((day) => {
+        const formattedDate = format(day.date, 'yyyy-MM-dd');
+        const dayData = monthData.find((e) => e.date === formattedDate);
+        return <Day key={day.key} day={day} dayData={dayData} />;
+      })}
     </Grid>
   );
 }
@@ -21,11 +25,4 @@ const Grid = styled.div`
   background-color: pink;
   grid-gap: 1px;
   border-top: 1px solid pink;
-`;
-
-const Day = styled.div`
-  dipslay: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: white;
 `;
