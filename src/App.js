@@ -1,21 +1,17 @@
 import React from 'react';
+import Div100vh from 'react-div-100vh';
 
 import { Header } from './header';
 import { Calendar } from './calendar';
 
 function App() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        height: '100vh',
-      }}
-    >
-      <Header />
-      <Calendar />
-    </div>
+    <Div100vh>
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Header />
+        <Calendar />
+      </div>
+    </Div100vh>
   );
 }
 
