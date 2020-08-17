@@ -9,9 +9,7 @@ export function Day({ dayData, day, isSelected, onSelect }) {
 
   return (
     <Container onClick={handleSelect} isSelected={isSelected}>
-      <TopBar>
-        <span>{getDate(day.date)}</span>
-      </TopBar>
+      <span>{getDate(day.date)}</span>
     </Container>
   );
 }
@@ -23,10 +21,4 @@ const Container = styled.div`
   background: white;
   align-items: flex-start;
   border: 1px solid ${(props) => (props.isSelected ? 'green' : 'transparent')};
-`;
-
-const TopBar = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
 `;

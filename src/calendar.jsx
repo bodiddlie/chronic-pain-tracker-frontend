@@ -43,7 +43,7 @@ export function Calendar() {
   const [currentMonth, setCurrentMonth] = React.useState(startOfMonth(today));
   const [calendar, setCalendar] = React.useState(generateDays(currentMonth));
   const [days, setDays] = React.useState([]);
-  const [selectedDay, setSelectedDay] = React.useState('2020-08-01');
+  const [selectedDay, setSelectedDay] = React.useState(null);
   const [data, setData] = React.useState(null);
 
   React.useEffect(() => {
@@ -77,21 +77,23 @@ export function Calendar() {
           <Label>F</Label>
           <Label>Sa</Label>
         </LabelRow>
-        <MonthGrid rows={calendar.rows}>
-          {calendar.days.map((day) => {
-            const formattedDate = format(day.date, 'yyyy-MM-dd');
-            const dayData = days.find((e) => e.date === formattedDate);
-            return (
-              <Day
-                key={day.key}
-                day={day}
-                dayData={dayData}
-                isSelected={day.key === selectedDay}
-                onSelect={handleSelect}
-              />
-            );
-          })}
-        </MonthGrid>
+        <div style={{ flex: 1 }}>
+          <MonthGrid rows={calendar.rows}>
+            {calendar.days.map((day) => {
+              const formattedDate = format(day.date, 'yyyy-MM-dd');
+              const dayData = days.find((e) => e.date === formattedDate);
+              return (
+                <Day
+                  key={day.key}
+                  day={day}
+                  dayData={dayData}
+                  isSelected={day.key === selectedDay}
+                  onSelect={handleSelect}
+                />
+              );
+            })}
+          </MonthGrid>
+        </div>
       </CalWrapper>
       <ControlWrapper>
         <Control data={data} />
@@ -134,7 +136,7 @@ const Label = styled.div`
 `;
 
 const MonthGrid = styled.div`
-  flex: 1;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(${(props) => props.rows}, 1fr);
